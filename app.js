@@ -274,17 +274,56 @@ function importBackup(file) {
     reader.readAsText(file);
 }
 
+function buildCompactSharePayload() {
+    const players = state.players || [];
+    const matches = (state.matches || []).map(match => [
+        match.date,
+        players.indexOf(match.playerA),
+        match.scoreA,
+        players.indexOf(match.playerB),
+        match.scoreB
+    ]);
+    return { v: 1, p: players, m: matches };
+}
+
+function restoreSharedState(payload) {
+    if (!payload || payload.v !== 1 || !Array.isArray(payload.p) || !Array.isArray(payload.m)) return null;
+    const players = payload.p;
+    const matches = payload.m.map((item, index) => {
+        const [date, aIndex, scoreA, bIndex, scoreB] = item;
+        return {
+            id: `m-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 5)}`,
+            date: date || getTodayString(),
+            playerA: players[aIndex] || '',
+            scoreA: Number(scoreA) || 0,
+            playerB: players[bIndex] || '',
+            scoreB: Number(scoreB) || 0,
+            notes: ''
+        };
+    }).filter(match => match.playerA && match.playerB);
+    return {
+        players,
+        matches,
+        sortField: 'date',
+        sortAsc: false
+    };
+}
+
 function checkUrlImport() {
-    const hash = window.location.hash;
-    if (!hash.startsWith('#data=')) return;
+    const params = new URLSearchParams(window.location.search);
+    let compressedData = params.get('d') || '';
+    if (!compressedData && window.location.hash.startsWith('#data=')) {
+        compressedData = window.location.hash.replace('#data=', '');
+    }
+    if (!compressedData) return;
 
     try {
-        const compressedData = hash.replace('#data=', '');
         const jsonString = LZString.decompressFromEncodedURIComponent(compressedData);
         const imported = JSON.parse(jsonString);
-        if (imported && Array.isArray(imported.players) && Array.isArray(imported.matches)) {
+        const restored = restoreSharedState(imported);
+        if (restored) {
             if (confirm('Dados compartilhados encontrados. Deseja importar e substituir os dados atuais?')) {
-                state = imported;
+                state = restored;
                 saveState();
                 renderAll();
                 alert('Dados importados com sucesso!');
@@ -294,20 +333,58 @@ function checkUrlImport() {
         console.error(error);
         alert('Não foi possível importar o link compartilhado.');
     } finally {
-        window.history.replaceState(null, null, ' ');
+        const cleanUrl = window.location.origin + window.location.pathname;
+        window.history.replaceState(null, null, cleanUrl);
     }
 }
 
-function generateShareLink() {
-    const jsonString = JSON.stringify(state);
-    const compressed = LZString.compressToEncodedURIComponent(jsonString);
-    const baseUrl = window.location.href.split('#')[0];
-    const shareUrl = `${baseUrl}#data=${compressed}`;
+const PUBLISHED_BASE_URL = 'https://psrehder.github.io/rancho8seconds/';
 
+function getShareBaseUrl() {
+    const currentUrl = window.location.href.split(/[?#]/)[0];
+    if (currentUrl.startsWith('file:') || currentUrl.includes('localhost') || currentUrl.includes('127.0.0.1')) {
+        return PUBLISHED_BASE_URL;
+    }
+    return currentUrl;
+}
+
+function createShareUrl() {
+    const payload = buildCompactSharePayload();
+    const jsonString = JSON.stringify(payload);
+    const compressed = LZString.compressToEncodedURIComponent(jsonString);
+    const baseUrl = getShareBaseUrl();
+    return `${baseUrl}?d=${compressed}`;
+}
+
+function generateShareLink() {
+    const shareUrl = createShareUrl();
     document.getElementById('shareLinkInput').value = shareUrl;
     const canvas = document.getElementById('qrCodeCanvas');
     new QRious({ element: canvas, value: shareUrl, size: 220, background: 'white', foreground: '#0f172a', level: 'L' });
     openModal('modalShare');
+}
+
+function copyShareLink() {
+    const link = document.getElementById('shareLinkInput').value || createShareUrl();
+    navigator.clipboard.writeText(link).then(() => {
+        alert('Link de compartilhamento copiado!');
+    });
+}
+
+function shareDataLink() {
+    generateShareLink();
+    const link = createShareUrl();
+    if (navigator.share) {
+        navigator.share({
+            title: 'Placar Rancho 8 Segundos',
+            text: 'Veja os dados do placar:',
+            url: link
+        }).catch(() => {
+            openModal('modalShare');
+        });
+    } else {
+        openModal('modalShare');
+    }
 }
 
 function renderAll() {

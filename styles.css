@@ -47,7 +47,7 @@ body {
 .btn:hover { transform: translateY(-1px); background: rgba(255,255,255,0.14); }
 .btn-primary { background: linear-gradient(135deg,#3b82f6,#8b5cf6); color: white; box-shadow: 0 8px 16px rgba(59,130,246,0.18); }
 .btn-secondary { background: rgba(255,255,255,0.08); color: var(--text); }
-.full-width { width: auto; }
+.full-width { width: 100%; }
 .sidebar-card p { margin: 0; color: var(--muted); line-height: 1.5; font-size: 0.95rem; }
 .content { display: grid; gap: 1rem; }
 .btn { border: none; border-radius: 999px; padding: 0.75rem 0.95rem; cursor: pointer; font-weight: 600; transition: transform 0.15s ease, box-shadow 0.15s ease; }
@@ -100,10 +100,198 @@ tr:hover { background: rgba(255,255,255,0.05); }
 #shareLinkInput { margin-bottom: 1rem; }
 
 @media (max-width: 1100px) {
-    .page-layout { grid-template-columns: 1fr; }
+    .page-layout { grid-template-columns: 1fr; margin: 5rem auto 1rem; padding: 0 0.9rem; }
     .sidebar { order: 2; }
+    .sidebar.action-panel { position: static; width: 100%; right: auto; top: auto; padding: 0; }
+    .sidebar-card { display: grid; align-items: stretch; width: 100%; gap: 0.75rem; }
+    .sidebar-card .btn { width: 100%; }
     .sidebar.right { order: 3; }
     .content { order: 1; }
     .scores-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
-    .match-inputs { flex-direction: column; }
+    .inline-actions { gap: 1rem; }
+    .match-inputs { flex-direction: column; align-items: stretch; }
+    .match-inputs input, .match-inputs select, .match-inputs button, .inline-row input, .inline-row button { width: 100%; flex: none; }
+    .inline-row { width: 100%; }
+    .match-inputs { width: 100%; }
+    .table-wrapper { overflow-x: auto; }
+    table { min-width: 100%; }
+}
+
+@media (max-width: 760px) {
+    .top-banner { padding: 1rem 0; }
+    .top-banner img { max-height: 110px; }
+    body { background-attachment: scroll; }
+    .page-layout { margin: 4rem auto 1rem; padding: 0 0.8rem; }
+    .panel, .scores-panel, .sidebar-card, .inline-form, .modal-card { border-radius: 16px; }
+    .inline-actions { display: grid; gap: 0.9rem; }
+    .inline-row, .match-inputs { display: grid; grid-template-columns: 1fr; gap: 0.8rem; align-items: stretch; }
+    .match-inputs input, .match-inputs select, .match-inputs button, .inline-row input, .inline-row button, .inline-form button { min-width: 0; width: 100%; flex: none; }
+    .match-inputs select, .match-inputs input { height: auto; }
+    .match-inputs .vs { display: none; }
+    .table-wrapper { overflow-x: visible; }
+    table { width: 100%; font-size: 0.9rem; border-spacing: 0; border-collapse: separate; }
+    thead, tbody, tr, th, td { display: block; }
+    thead tr { position: absolute; top: -9999px; left: -9999px; }
+    tr { border: 1px solid rgba(255,255,255,0.12); border-radius: 18px; margin-bottom: 0.9rem; padding: 0.85rem; background: rgba(255,255,255,0.04); }
+    td { padding: 0.75rem 0.75rem 0.75rem 45%; position: relative; text-align: right; border: none; }
+    td:before { position: absolute; top: 0.75rem; left: 1rem; width: 40%; white-space: nowrap; font-weight: 600; color: var(--muted); text-align: left; }
+    td:nth-of-type(1):before { content: 'Data'; }
+    td:nth-of-type(2):before { content: 'Dupla A'; }
+    td:nth-of-type(3):before { content: 'Pts A'; }
+    td:nth-of-type(4):before { content: 'Dupla B'; }
+    td:nth-of-type(5):before { content: 'Pts B'; }
+    td:nth-of-type(6):before { content: 'Vencedor'; }
+    td:nth-of-type(7):before { content: 'Ações'; }
+    .panel-header { flex-direction: column; align-items: flex-start; }
+    .matches-meta { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+    .matches-meta span { margin-left: 0; }
+    .modal-card { width: 100%; max-width: 100%; padding: 1.25rem; }
+    .scores-grid { grid-template-columns: 1fr; }
+    .sidebar-card { padding: 1rem; }
+    .sidebar.action-panel { position: static !important; width: 100% !important; margin-bottom: 1rem; }
+    .page-layout { margin-top: 3.5rem; }
+}
+
+/* Mobile-specific comprehensive overrides */
+@media (max-width: 980px) {
+    .page-layout {
+        width: 100%;
+        margin: 4rem auto 1rem;
+        padding: 0 0.9rem;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .sidebar.action-panel {
+        position: static !important;
+        width: 100% !important;
+        right: auto !important;
+        top: auto !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .sidebar-card {
+        width: 100% !important;
+        align-items: stretch;
+        gap: 0.85rem;
+    }
+
+    .sidebar-card .btn,
+    .full-width {
+        width: 100% !important;
+    }
+
+    .inline-actions,
+    .inline-row,
+    .match-inputs {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 0.85rem !important;
+        align-items: stretch !important;
+    }
+
+    .inline-row input,
+    .match-inputs input,
+    .match-inputs select,
+    .inline-form button,
+    .match-inputs button,
+    .inline-row button {
+        width: 100% !important;
+        min-width: 0 !important;
+        flex: none !important;
+        height: auto !important;
+        padding: 0.95rem 1rem !important;
+    }
+
+    .match-inputs .vs {
+        display: none !important;
+    }
+
+    .panel,
+    .scores-panel,
+    .sidebar-card,
+    .inline-form,
+    .modal-card {
+        border-radius: 18px !important;
+    }
+
+    .table-wrapper {
+        overflow-x: visible !important;
+    }
+
+    table {
+        width: 100% !important;
+        min-width: 100% !important;
+        font-size: 0.95rem !important;
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+    }
+
+    thead,
+    tbody,
+    tr,
+    th,
+    td {
+        display: block !important;
+    }
+
+    thead tr {
+        position: absolute !important;
+        top: -9999px !important;
+        left: -9999px !important;
+    }
+
+    tr {
+        border: 1px solid rgba(255,255,255,0.12) !important;
+        border-radius: 18px !important;
+        margin-bottom: 1rem !important;
+        padding: 0.9rem !important;
+        background: rgba(255,255,255,0.04) !important;
+    }
+
+    td {
+        padding: 0.85rem 0.85rem 0.85rem 45% !important;
+        position: relative !important;
+        text-align: right !important;
+        border: none !important;
+    }
+
+    td:before {
+        position: absolute !important;
+        top: 0.85rem !important;
+        left: 1rem !important;
+        width: 42% !important;
+        white-space: nowrap !important;
+        font-weight: 700 !important;
+        color: var(--muted) !important;
+        text-align: left !important;
+    }
+
+    td:nth-of-type(1):before { content: 'Data'; }
+    td:nth-of-type(2):before { content: 'Dupla A'; }
+    td:nth-of-type(3):before { content: 'Pts A'; }
+    td:nth-of-type(4):before { content: 'Dupla B'; }
+    td:nth-of-type(5):before { content: 'Pts B'; }
+    td:nth-of-type(6):before { content: 'Vencedor'; }
+    td:nth-of-type(7):before { content: 'Ações'; }
+
+    th,
+    td {
+        padding: 0.75rem 0.75rem !important;
+    }
+
+    .panel-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+    }
+
+    .matches-meta {
+        gap: 0.75rem !important;
+    }
+
+    .page-layout {
+        margin-top: 3rem !important;
+    }
 }

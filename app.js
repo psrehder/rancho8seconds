@@ -381,7 +381,7 @@ function checkUrlImport() {
     }
 }
 
-const PUBLISHED_BASE_URL = 'https://psrehder.github.io/rancho8seconds/domino-placar/';
+const PUBLISHED_BASE_URL = 'https://psrehder.github.io/rancho8seconds/domino-placar/index.html';
 
 function getShareBaseUrl() {
     const currentUrl = window.location.href.split(/[?#]/)[0];

@@ -73,6 +73,20 @@ function formatDate(dateStr) {
     return `${parts[2]}/${parts[1]}/${parts[0]}`;
 }
 
+function getMatchTeamPlayers(match, side) {
+    const legacyKey = `player${side}`;
+    const teamKey = `team${side}`;
+    if (Array.isArray(match[teamKey]) && match[teamKey].length > 0) {
+        return match[teamKey];
+    }
+    return match[legacyKey] ? [match[legacyKey]] : [];
+}
+
+function getMatchTeamLabel(match, side) {
+    const team = getMatchTeamPlayers(match, side);
+    return team.length ? team.join(' + ') : '-';
+}
+
 function calculateTotals() {
     const totals = {};
     state.players.forEach(name => {
@@ -80,22 +94,29 @@ function calculateTotals() {
     });
 
     state.matches.forEach(match => {
-        if (!totals[match.playerA] || !totals[match.playerB]) return;
+        const teamA = getMatchTeamPlayers(match, 'A');
+        const teamB = getMatchTeamPlayers(match, 'B');
+        if (teamA.length === 0 || teamB.length === 0) return;
+        if (teamA.some(name => !totals[name]) || teamB.some(name => !totals[name])) return;
 
-        totals[match.playerA].score += match.scoreA;
-        totals[match.playerB].score += match.scoreB;
-        totals[match.playerA].matches += 1;
-        totals[match.playerB].matches += 1;
+        teamA.forEach(name => {
+            totals[name].score += match.scoreA;
+            totals[name].matches += 1;
+        });
+        teamB.forEach(name => {
+            totals[name].score += match.scoreB;
+            totals[name].matches += 1;
+        });
 
         if (match.scoreA > match.scoreB) {
-            totals[match.playerA].victories += 1;
-            totals[match.playerB].defeats += 1;
+            teamA.forEach(name => totals[name].victories += 1);
+            teamB.forEach(name => totals[name].defeats += 1);
         } else if (match.scoreB > match.scoreA) {
-            totals[match.playerB].victories += 1;
-            totals[match.playerA].defeats += 1;
+            teamB.forEach(name => totals[name].victories += 1);
+            teamA.forEach(name => totals[name].defeats += 1);
         } else {
-            totals[match.playerA].draws += 1;
-            totals[match.playerB].draws += 1;
+            teamA.forEach(name => totals[name].draws += 1);
+            teamB.forEach(name => totals[name].draws += 1);
         }
     });
 
@@ -103,8 +124,8 @@ function calculateTotals() {
 }
 
 function getWinnerText(match) {
-    if (match.scoreA > match.scoreB) return match.playerA;
-    if (match.scoreB > match.scoreA) return match.playerB;
+    if (match.scoreA > match.scoreB) return getMatchTeamLabel(match, 'A');
+    if (match.scoreB > match.scoreA) return getMatchTeamLabel(match, 'B');
     return 'Empate';
 }
 
@@ -135,7 +156,7 @@ function renderScores() {
         card.className = 'score-card';
         card.innerHTML = `
             <div>
-                <span>Dupla</span>
+                <span>Jogador</span>
                 <strong>${player}</strong>
             </div>
             <div>
@@ -173,14 +194,16 @@ function renderMatches() {
     matches.forEach(match => {
         const tr = document.createElement('tr');
         const winner = getWinnerText(match);
+        const teamALabel = getMatchTeamLabel(match, 'A');
+        const teamBLabel = getMatchTeamLabel(match, 'B');
         const awardHtml = isFourZeroWin(match)
             ? `<img src="trophy.svg" alt="Troféu" class="trophy-icon" title="4 a 0 - Lambreta" />`
             : '';
         tr.innerHTML = `
             <td>${formatDate(match.date)}</td>
-            <td>${match.playerA}</td>
+            <td>${teamALabel}</td>
             <td>${match.scoreA}</td>
-            <td>${match.playerB}</td>
+            <td>${teamBLabel}</td>
             <td>${match.scoreB}</td>
             <td><span class="badge ${winner === 'Empate' ? 'draw' : 'win'}">${winner}</span>${winner !== 'Empate' ? awardHtml : ''}</td>
             <td><button class="action-btn" data-id="${match.id}">Excluir</button></td>
@@ -204,25 +227,20 @@ function renderMatches() {
 
 function renderMeta() {
     document.getElementById('matchesCount').innerText = `${state.matches.length} partida${state.matches.length === 1 ? '' : 's'}`;
-    document.getElementById('playersCount').innerText = `${state.players.length} dupla${state.players.length === 1 ? '' : 's'}`;
+    document.getElementById('playersCount').innerText = `${state.players.length} jogador${state.players.length === 1 ? '' : 'es'}`;
 }
 
 function populatePlayerSelects() {
-    const selectA = document.getElementById('playerA');
-    const selectB = document.getElementById('playerB');
-    selectA.innerHTML = '';
-    selectB.innerHTML = '';
-
-    state.players.forEach(player => {
-        const optA = document.createElement('option');
-        optA.value = player;
-        optA.textContent = player;
-        selectA.appendChild(optA);
-
-        const optB = document.createElement('option');
-        optB.value = player;
-        optB.textContent = player;
-        selectB.appendChild(optB);
+    const selectIds = ['playerA1', 'playerA2', 'playerB1', 'playerB2'];
+    selectIds.forEach(id => {
+        const select = document.getElementById(id);
+        select.innerHTML = '';
+        state.players.forEach(player => {
+            const option = document.createElement('option');
+            option.value = player;
+            option.textContent = player;
+            select.appendChild(option);
+        });
     });
 }
 
@@ -293,13 +311,19 @@ function importBackup(file) {
 
 function buildCompactSharePayload() {
     const players = state.players || [];
-    const matches = (state.matches || []).map(match => [
-        match.date,
-        players.indexOf(match.playerA),
-        match.scoreA,
-        players.indexOf(match.playerB),
-        match.scoreB
-    ]);
+    const matches = (state.matches || []).map(match => {
+        const teamA = getMatchTeamPlayers(match, 'A');
+        const teamB = getMatchTeamPlayers(match, 'B');
+        return [
+            match.date,
+            players.indexOf(teamA[0]),
+            players.indexOf(teamA[1]),
+            match.scoreA,
+            players.indexOf(teamB[0]),
+            players.indexOf(teamB[1]),
+            match.scoreB
+        ];
+    });
     return { v: 1, p: players, m: matches };
 }
 
@@ -307,17 +331,19 @@ function restoreSharedState(payload) {
     if (!payload || payload.v !== 1 || !Array.isArray(payload.p) || !Array.isArray(payload.m)) return null;
     const players = payload.p;
     const matches = payload.m.map((item, index) => {
-        const [date, aIndex, scoreA, bIndex, scoreB] = item;
+        const [date, aIndex1, aIndex2, scoreA, bIndex1, bIndex2, scoreB] = item;
+        const teamA = [players[aIndex1], players[aIndex2]].filter(Boolean);
+        const teamB = [players[bIndex1], players[bIndex2]].filter(Boolean);
         return {
             id: `m-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 5)}`,
             date: date || getTodayString(),
-            playerA: players[aIndex] || '',
+            teamA,
             scoreA: Number(scoreA) || 0,
-            playerB: players[bIndex] || '',
+            teamB,
             scoreB: Number(scoreB) || 0,
             notes: ''
         };
-    }).filter(match => match.playerA && match.playerB);
+    }).filter(match => match.teamA.length > 0 && match.teamB.length > 0);
     return {
         players,
         matches,
@@ -441,7 +467,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = document.getElementById('playerName').value.trim();
         if (!name) return;
         if (state.players.includes(name)) {
-            alert('Esta dupla já existe.');
+            alert('Este jogador já existe.');
             return;
         }
         state.players.push(name);
@@ -452,25 +478,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('formMatch').addEventListener('submit', event => {
         event.preventDefault();
-        if (state.players.length < 2) {
-            alert('Adicione pelo menos duas duplas antes de registrar partidas.');
+        if (state.players.length < 4) {
+            alert('Adicione pelo menos quatro jogadores antes de registrar partidas.');
+            return;
+        }
+
+        const teamA1 = document.getElementById('playerA1').value;
+        const teamA2 = document.getElementById('playerA2').value;
+        const teamB1 = document.getElementById('playerB1').value;
+        const teamB2 = document.getElementById('playerB2').value;
+        const scoreA = parseInt(document.getElementById('scoreA').value, 10) || 0;
+        const scoreB = parseInt(document.getElementById('scoreB').value, 10) || 0;
+
+        const selectedPlayers = [teamA1, teamA2, teamB1, teamB2];
+        const uniquePlayers = [...new Set(selectedPlayers)];
+        if (uniquePlayers.length !== 4) {
+            alert('Escolha quatro jogadores diferentes para formar as duas duplas.');
             return;
         }
 
         const matchData = {
             id: `m-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
             date: document.getElementById('matchDate').value,
-            playerA: document.getElementById('playerA').value,
-            scoreA: parseInt(document.getElementById('scoreA').value, 10) || 0,
-            playerB: document.getElementById('playerB').value,
-            scoreB: parseInt(document.getElementById('scoreB').value, 10) || 0,
+            teamA: [teamA1, teamA2],
+            scoreA,
+            teamB: [teamB1, teamB2],
+            scoreB,
             notes: ''
         };
-
-        if (matchData.playerA === matchData.playerB) {
-            alert('Escolha duas duplas diferentes.');
-            return;
-        }
 
         state.matches.unshift(matchData);
         saveState();

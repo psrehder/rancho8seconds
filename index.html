@@ -27,8 +27,8 @@
         <section class="content">
             <section class="scores-panel">
                 <div class="panel-header">
-                <h2>Ranking de Duplas</h2>
-                <p>Totais por dupla e partidas registradas.</p>
+                <h2>Ranking de Jogadores</h2>
+                <p>Totais por jogador e partidas registradas.</p>
             </div>
             <div class="scores-grid" id="scoresGrid"></div>
         </section>
@@ -38,25 +38,27 @@
                 <h2>Partidas</h2>
                 <div class="matches-meta">
                     <span id="matchesCount">0 partidas</span>
-                    <span id="playersCount">0 duplas</span>
+                    <span id="playersCount">0 jogadores</span>
                 </div>
             </div>
             <div class="inline-actions">
                 <form id="formPlayer" class="inline-form">
-                    <label for="playerName">Nova dupla</label>
+                    <label for="playerName">Novo jogador</label>
                     <div class="inline-row">
-                        <input type="text" id="playerName" placeholder="Nome da dupla" required>
-                        <button type="submit" class="btn btn-secondary">Adicionar dupla</button>
+                        <input type="text" id="playerName" placeholder="Nome do jogador" required>
+                        <button type="submit" class="btn btn-secondary">Adicionar jogador</button>
                     </div>
                 </form>
                 <form id="formMatch" class="inline-form">
-                    <label>Registrar partida</label>
+                    <label>Registrar partida (2 x 2)</label>
                     <div class="match-inputs">
                         <input type="date" id="matchDate" required>
-                        <select id="playerA" required></select>
+                        <select id="playerA1" required></select>
+                        <select id="playerA2" required></select>
                         <input type="number" id="scoreA" min="0" value="0" placeholder="Pts A" required>
                         <span class="vs">x</span>
-                        <select id="playerB" required></select>
+                        <select id="playerB1" required></select>
+                        <select id="playerB2" required></select>
                         <input type="number" id="scoreB" min="0" value="0" placeholder="Pts B" required>
                         <button type="submit" class="btn btn-primary">Salvar partida</button>
                     </div>

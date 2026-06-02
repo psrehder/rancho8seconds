@@ -407,7 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (file) importBackup(file);
         event.target.value = '';
     });
-    document.getElementById('btnShareLink').addEventListener('click', generateShareLink);
+    document.getElementById('btnShareLink').addEventListener('click', shareDataLink);
     document.getElementById('btnResetData').addEventListener('click', resetState);
 
     document.getElementById('btnCopyLink').addEventListener('click', () => {

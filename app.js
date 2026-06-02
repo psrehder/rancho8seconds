@@ -231,10 +231,23 @@ function renderMeta() {
 }
 
 function populatePlayerSelects() {
+    const placeholders = {
+        playerA1: 'Jogador A1',
+        playerA2: 'Jogador A2',
+        playerB1: 'Jogador B1',
+        playerB2: 'Jogador B2'
+    };
     const selectIds = ['playerA1', 'playerA2', 'playerB1', 'playerB2'];
     selectIds.forEach(id => {
         const select = document.getElementById(id);
         select.innerHTML = '';
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = placeholders[id];
+        placeholder.disabled = true;
+        placeholder.selected = true;
+        placeholder.hidden = true;
+        select.appendChild(placeholder);
         state.players.forEach(player => {
             const option = document.createElement('option');
             option.value = player;

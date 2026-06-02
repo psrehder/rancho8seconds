@@ -53,13 +53,21 @@
                     <label>Registrar partida (2 x 2)</label>
                     <div class="match-inputs">
                         <input type="date" id="matchDate" required>
-                        <select id="playerA1" required></select>
-                        <select id="playerA2" required></select>
-                        <input type="number" id="scoreA" min="0" value="0" placeholder="Pts A" required>
-                        <span class="vs">x</span>
-                        <select id="playerB1" required></select>
-                        <select id="playerB2" required></select>
-                        <input type="number" id="scoreB" min="0" value="0" placeholder="Pts B" required>
+                        <div class="team-group team-a">
+                            <span class="team-label">Dupla A</span>
+                            <select id="playerA1" required></select>
+                            <select id="playerA2" required></select>
+                        </div>
+                        <div class="score-group">
+                            <input type="number" id="scoreA" min="0" value="0" placeholder="Pts A" required>
+                            <span class="vs">x</span>
+                            <input type="number" id="scoreB" min="0" value="0" placeholder="Pts B" required>
+                        </div>
+                        <div class="team-group team-b">
+                            <span class="team-label">Dupla B</span>
+                            <select id="playerB1" required></select>
+                            <select id="playerB2" required></select>
+                        </div>
                         <button type="submit" class="btn btn-primary">Salvar partida</button>
                     </div>
                 </form>

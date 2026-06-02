@@ -13,7 +13,8 @@ const DEFAULT_PLAYERS = [
     'Henrique',
     'Joice',
     'Douglas',
-    'Paulo'
+    'Paulo',
+    'Johnson´s Baby'
 ];
 
 let state = {
@@ -33,7 +34,16 @@ function loadState() {
     if (saved) {
         try {
             state = JSON.parse(saved);
-            if (!state.players || state.players.length === 0) state.players = [...DEFAULT_PLAYERS];
+            if (!state.players || state.players.length === 0) {
+                state.players = [...DEFAULT_PLAYERS];
+                saveState();
+            } else {
+                const mergedPlayers = [...new Set([...state.players, ...DEFAULT_PLAYERS])];
+                if (mergedPlayers.length !== state.players.length) {
+                    state.players = mergedPlayers;
+                    saveState();
+                }
+            }
             if (!state.matches) state.matches = [];
             if (!state.sortField) state.sortField = 'date';
             if (state.sortAsc === undefined) state.sortAsc = false;
@@ -98,6 +108,10 @@ function getWinnerText(match) {
     return 'Empate';
 }
 
+function isFourZeroWin(match) {
+    return (match.scoreA === 4 && match.scoreB === 0) || (match.scoreB === 4 && match.scoreA === 0);
+}
+
 function renderScores() {
     const grid = document.getElementById('scoresGrid');
     const totals = calculateTotals();
@@ -159,13 +173,16 @@ function renderMatches() {
     matches.forEach(match => {
         const tr = document.createElement('tr');
         const winner = getWinnerText(match);
+        const awardHtml = isFourZeroWin(match)
+            ? `<img src="trophy.svg" alt="Troféu" class="trophy-icon" title="4 a 0 - Lambreta" />`
+            : '';
         tr.innerHTML = `
             <td>${formatDate(match.date)}</td>
             <td>${match.playerA}</td>
             <td>${match.scoreA}</td>
             <td>${match.playerB}</td>
             <td>${match.scoreB}</td>
-            <td><span class="badge ${winner === 'Empate' ? 'draw' : 'win'}">${winner}</span></td>
+            <td><span class="badge ${winner === 'Empate' ? 'draw' : 'win'}">${winner}</span>${winner !== 'Empate' ? awardHtml : ''}</td>
             <td><button class="action-btn" data-id="${match.id}">Excluir</button></td>
         `;
         tbody.appendChild(tr);

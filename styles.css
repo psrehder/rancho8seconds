@@ -84,6 +84,7 @@ tr:hover { background: rgba(255,255,255,0.05); }
 .badge.win { background: rgba(16,185,129,0.12); color: #8ef0b3; }
 .badge.draw { background: rgba(248,250,252,0.08); color: var(--muted); }
 .badge.lose { background: rgba(239,68,68,0.12); color: #fca5a5; }
+.trophy-icon { width: 20px; height: 20px; margin-left: 0.5rem; vertical-align: middle; }
 .action-btn { background: transparent; color: var(--muted); border: 1px solid rgba(255,255,255,0.08); border-radius: 999px; padding: 0.35rem 0.75rem; cursor: pointer; }
 .action-btn:hover { border-color: rgba(255,255,255,0.2); color: white; }
 

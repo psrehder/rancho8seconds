@@ -17,17 +17,29 @@
 html, body {
     margin: 0;
     min-height: 100%;
-    background: linear-gradient(180deg, rgba(4,7,13,0.92), rgba(9,15,25,0.92));
+    background: #050710;
     color: var(--text);
 }
-body { display: flex; flex-direction: column; }
+body {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, rgba(5,7,16,0.38), rgba(5,7,16,0.45)), url('planodefundo.png') top/cover no-repeat fixed;
+}
 
-.top-banner { width: 100%; padding: 1.5rem 0 1rem; display: flex; justify-content: center; align-items: center; background: transparent; }
-.top-banner img { width: auto; max-width: min(900px, 100%); max-height: 180px; height: auto; display: block; }
+.top-banner { width: 100%; padding: 1.5rem 0; display: flex; justify-content: center; align-items: center; background: transparent; }
+.top-banner img { width: auto; max-width: min(820px, 100%); max-height: 170px; display: block; }
 
-.page-layout { width: min(980px, 100%); margin: 2rem auto 1.5rem; display: grid; grid-template-columns: 1fr; gap: 1rem; padding: 0 1.25rem; align-items: start; }
+.page-layout {
+    width: min(980px, 100%);
+    margin: 6rem auto 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 0 1.25rem;
+    align-items: start;
+}
 .sidebar { display: grid; gap: 1rem; }
-.sidebar.action-panel { position: fixed; top: 1rem; right: 1rem; width: auto; z-index: 10; opacity: 0.92; }
+.sidebar.action-panel { position: fixed; top: 2rem; right: 1rem; width: auto; z-index: 10; opacity: 0.92; }
 .sidebar-card { background: transparent; border: none; border-radius: 0; padding: 0; display: inline-flex; flex-direction: column; gap: 0.35rem; align-items: flex-end; }
 .sidebar-card.compact { padding: 0; }
 .sidebar-card h2 { margin: 0 0 0.75rem; font-size: 1rem; }
